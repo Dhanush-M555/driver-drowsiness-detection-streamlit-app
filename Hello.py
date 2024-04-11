@@ -19,18 +19,14 @@ def start_alarm(sound):
     pygame.mixer.music.play()
 
 classes = ['Closed', 'Open']
-face_cascade = cv2.CascadeClassifier(
-    r"/workspaces/driver-drowsiness-detection-streamlit-app/haarcascade_frontalface_default.xml")
-left_eye_cascade = cv2.CascadeClassifier(
-    r"/workspaces/driver-drowsiness-detection-streamlit-app/haarcascade_lefteye_2splits.xml")
-right_eye_cascade = cv2.CascadeClassifier(
-    r"/workspaces/driver-drowsiness-detection-streamlit-app/haarcascade_righteye_2splits.xml")
+face_cascade = cv2.CascadeClassifier(r"haarcascade_frontalface_default.xml")
+left_eye_cascade = cv2.CascadeClassifier(r"haarcascade_lefteye_2splits.xml")
+right_eye_cascade = cv2.CascadeClassifier(r"haarcascade_righteye_2splits.xml")
 cap = cv2.VideoCapture(0)
-model = keras.models.load_model(
-    r"/workspaces/driver-drowsiness-detection-streamlit-app/drowiness_new2.h5")
+model = keras.models.load_model(r"drowiness_new2.h5")
 count = 0
 alarm_on = False
-alarm_sound = "/workspaces/driver-drowsiness-detection-streamlit-app/alarm.mp3"
+alarm_sound = "alarm.mp3"
 status1 = ''
 status2 = ''
 # Initialize the variable corresponding to the FPS calculation
