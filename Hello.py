@@ -14,25 +14,21 @@ import cv2
 import av
 import base64
 
-# def start_alarm(sound):
-#     with open(sound, "rb") as f:
-#         data = f.read()
-#         b64 = base64.b64encode(data).decode()
-#         md = f"""
-#             <audio controls autoplay="true">
-#             <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
-#             </audio>
-#             """
-#         st.markdown(
-#             md,
-#             unsafe_allow_html=True,
-#         )
-#     st.write("# Auto-playing Audio!")
-
 def start_alarm(sound):
-    pygame.mixer.init()
-    pygame.mixer.music.load(sound)
-    pygame.mixer.music.play()
+    with open(sound, "rb") as f:
+        data = f.read()
+        b64 = base64.b64encode(data).decode()
+        md = f"""
+            <audio controls autoplay="true">
+            <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
+            </audio>
+            """
+        st.markdown(
+            md,
+            unsafe_allow_html=True,
+        )
+    st.write("# Auto-playing Audio!")
+
 
 classes = ['Closed', 'Open']
 face_cascade = cv2.CascadeClassifier(r"haarcascade_frontalface_default.xml")
