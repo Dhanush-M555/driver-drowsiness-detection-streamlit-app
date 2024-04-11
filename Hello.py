@@ -15,11 +15,11 @@ import av
 import base64
 
 def start_alarm(sound):
-    pygame.mixer.init()
-    pygame.mixer.music.load(sound)
-    pygame.mixer.music.play()
+    # pygame.mixer.init()
+    # pygame.mixer.music.load(sound)
+    # pygame.mixer.music.play()
 
-    # Base64 encode the audio file
+    # # Base64 encode the audio file
     with open(sound, "rb") as f:
         audio_data = f.read()
         audio_base64 = base64.b64encode(audio_data).decode()
