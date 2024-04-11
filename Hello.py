@@ -13,10 +13,16 @@ import time
 import cv2
 import av
 
+# def start_alarm(sound):
+#     pygame.mixer.init()
+#     pygame.mixer.music.load(sound)
+#     pygame.mixer.music.play()
+
+import vlc
+
 def start_alarm(sound):
-    pygame.mixer.init()
-    pygame.mixer.music.load(sound)
-    pygame.mixer.music.play()
+    player = vlc.MediaPlayer(sound)
+    player.play()
 
 classes = ['Closed', 'Open']
 face_cascade = cv2.CascadeClassifier(r"haarcascade_frontalface_default.xml")

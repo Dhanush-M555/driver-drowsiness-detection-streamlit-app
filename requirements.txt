@@ -8,3 +8,4 @@ pygame
 av
 opencv-python-headless
 streamlit_webrtc
+python-vlc
