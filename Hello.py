@@ -1,51 +1,112 @@
-# Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022)
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+import pygame
+import tensorflow as tf
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 import streamlit as st
-from streamlit.logger import get_logger
+from tensorflow import keras
+from streamlit_webrtc import webrtc_streamer
+from keras.utils import img_to_array
+import numpy as np
+from threading import Thread
+import time
+import cv2
+import av
 
-LOGGER = get_logger(__name__)
+def start_alarm(sound):
+    pygame.mixer.init()
+    pygame.mixer.music.load(sound)
+    pygame.mixer.music.play()
+
+classes = ['Closed', 'Open']
+face_cascade = cv2.CascadeClassifier(
+    r"/workspaces/driver-drowsiness-detection-streamlit-app/haarcascade_frontalface_default.xml")
+left_eye_cascade = cv2.CascadeClassifier(
+    r"/workspaces/driver-drowsiness-detection-streamlit-app/haarcascade_lefteye_2splits.xml")
+right_eye_cascade = cv2.CascadeClassifier(
+    r"/workspaces/driver-drowsiness-detection-streamlit-app/haarcascade_righteye_2splits.xml")
+cap = cv2.VideoCapture(0)
+model = keras.models.load_model(
+    r"/workspaces/driver-drowsiness-detection-streamlit-app/drowiness_new2.h5")
+count = 0
+alarm_on = False
+alarm_sound = "/workspaces/driver-drowsiness-detection-streamlit-app/alarm.mp3"
+status1 = ''
+status2 = ''
+# Initialize the variable corresponding to the FPS calculation
+prev_frame_time = 0
+new_frame_time = 0
 
 
-def run():
-    st.set_page_config(
-        page_title="Hello",
-        page_icon="👋",
-    )
+def drowsiness_detection(frame):
+    global count, alarm_on
+    img = frame.to_ndarray(format="bgr24")
+    frame_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(frame_gray, 1.3, 5)
+    for (x, y, w, h) in faces:
+        cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)  # Blue rectangle around the face
+        roi_gray = frame_gray[y:y+h, x:x+w]
+        roi_color = img[y:y+h, x:x+w]
+        left_eye = left_eye_cascade.detectMultiScale(roi_gray)
+        right_eye = right_eye_cascade.detectMultiScale(roi_gray)
+        for (x1, y1, w1, h1) in left_eye:
+            eye1 = roi_color[y1:y1+h1, x1:x1+w1]
+            eye1 = cv2.resize(eye1, (145, 145))
+            eye1 = eye1.astype('float') / 255.0
+            eye1 = img_to_array(eye1)
+            eye1 = np.expand_dims(eye1, axis=0)
+            pred1 = model.predict(eye1)
+            status1 = np.argmax(pred1)
+            if status1 == 2:
+                count += 1
+                if count >= 10:
+                    cv2.putText(img, "Drowsiness Detected", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
+                    st.warning("Drowsiness Alert!!!")
+                    if not alarm_on:
+                        alarm_on = True
+                        t = Thread(target=start_alarm, args=(alarm_sound,))
+                        t.daemon = True
+                        t.start()
+                        cv2.rectangle(roi_color, (x1, y1), (x1 + w1, y1 + h1), (0, 0, 255), 2)  # Red rectangle for closed eyes
+            else:
+                count = 0
+                alarm_on = False
+                cv2.rectangle(roi_color, (x1, y1), (x1 + w1, y1 + h1), (0, 255, 0), 2)  # Green rectangle for open eyes
+        for (x2, y2, w2, h2) in right_eye:
+            eye2 = roi_color[y2:y2 + h2, x2:x2 + w2]
+            eye2 = cv2.resize(eye2, (145, 145))
+            eye2 = eye2.astype('float') / 255.0
+            eye2 = img_to_array(eye2)
+            eye2 = np.expand_dims(eye2, axis=0)
+            pred2 = model.predict(eye2)
+            status2 = np.argmax(pred2)
+            if status2 == 2:
+                count += 1
+                if count >= 10:
+                    cv2.putText(img, "Drowsiness Detected", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
+                    st.warning("Drowsiness Alert!!!")
+                    if not alarm_on:
+                        alarm_on = True
+                        t = Thread(target=start_alarm, args=(alarm_sound,))
+                        t.daemon = True
+                        t.start()
+                        cv2.rectangle(roi_color, (x2, y2), (x2 + w2, y2 + h2), (0, 0, 255), 2)  # Red rectangle for closed eyes
+            else:
+                count = 0
+                alarm_on = False
+                # cv2.rectangle(roi_color, (x2, y2), (x2 + w2, y2 + h2), (0, 255, 0), 2)  # Green rectangle for open eyes
+    return av.VideoFrame.from_ndarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), format="rgb24")
 
-    st.write("# Welcome to Streamlit! 👋")
-
-    st.sidebar.success("Select a demo above.")
-
-    st.markdown(
-        """
-        Streamlit is an open-source app framework built specifically for
-        Machine Learning and Data Science projects.
-        **👈 Select a demo from the sidebar** to see some examples
-        of what Streamlit can do!
-        ### Want to learn more?
-        - Check out [streamlit.io](https://streamlit.io)
-        - Jump into our [documentation](https://docs.streamlit.io)
-        - Ask a question in our [community
-          forums](https://discuss.streamlit.io)
-        ### See more complex demos
-        - Use a neural net to [analyze the Udacity Self-driving Car Image
-          Dataset](https://github.com/streamlit/demo-self-driving)
-        - Explore a [New York City rideshare dataset](https://github.com/streamlit/demo-uber-nyc-pickups)
-    """
-    )
-
+def main():
+    st.title("Driver Drowsiness Detector")
+    webrtc_ctx = webrtc_streamer(key="example", video_frame_callback=drowsiness_detection,rtc_configuration={
+        "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
+    })
+    if webrtc_ctx.video_processor:
+        while True:
+            if st.button("Stop"):
+                webrtc_ctx.video_processor.stop()
+                break
 
 if __name__ == "__main__":
-    run()
+    main()
