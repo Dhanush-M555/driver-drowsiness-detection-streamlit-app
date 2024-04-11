@@ -72,10 +72,10 @@ def drowsiness_detection(frame):
                     st.warning("Drowsiness Alert!!!")
                     if not alarm_on:
                         alarm_on = True
-                        # t = Thread(target=start_alarm, args=(alarm_sound,))
-                        # t.daemon = True
-                        # t.start()
-                        start_alarm(alarm_sound)
+                        t = Thread(target=start_alarm, args=(alarm_sound,))
+                        t.daemon = True
+                        st.report_thread.add_report_ctx(t)
+                        t.start()
                         cv2.rectangle(roi_color, (x1, y1), (x1 + w1, y1 + h1), (0, 0, 255), 2)  # Red rectangle for closed eyes
             else:
                 count = 0
@@ -96,10 +96,10 @@ def drowsiness_detection(frame):
                     st.warning("Drowsiness Alert!!!")
                     if not alarm_on:
                         alarm_on = True
-                        # t = Thread(target=start_alarm, args=(alarm_sound,))
-                        # t.daemon = True
-                        # t.start()
-                        start_alarm(alarm_sound)
+                        t = Thread(target=start_alarm, args=(alarm_sound,))
+                        t.daemon = True
+                        st.report_thread.add_report_ctx(t)
+                        t.start()
                         cv2.rectangle(roi_color, (x2, y2), (x2 + w2, y2 + h2), (0, 0, 255), 2)  # Red rectangle for closed eyes
             else:
                 count = 0
