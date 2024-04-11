@@ -15,20 +15,19 @@ import av
 import base64
 
 def start_alarm(sound):
-    # pygame.mixer.init()
-    # pygame.mixer.music.load(sound)
-    # pygame.mixer.music.play()
-
-    # # Base64 encode the audio file
     with open(sound, "rb") as f:
-        audio_data = f.read()
-        audio_base64 = base64.b64encode(audio_data).decode()
-
-    # Embed the audio in HTML using the audio tag
-    audio_html = f'<audio controls autoplay="true"><source src="alarm/mp3;base64,{audio_base64}" type="audio/mp3"></audio>'
-    
-    # Display the audio in Streamlit
-    st.markdown(audio_html, unsafe_allow_html=True)
+        data = f.read()
+        b64 = base64.b64encode(data).decode()
+        md = f"""
+            <audio controls autoplay="true">
+            <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
+            </audio>
+            """
+        st.markdown(
+            md,
+            unsafe_allow_html=True,
+        )
+    st.write("# Auto-playing Audio!")
 
 classes = ['Closed', 'Open']
 face_cascade = cv2.CascadeClassifier(r"haarcascade_frontalface_default.xml")
