@@ -76,7 +76,7 @@ def drowsiness_detection(frame):
                         t.daemon = True
                         # st.report_thread.add_report_ctx(t)
                         # st.ReportThread.add_report_ctx(t)
-                        st.script_run_context.add_script_run_ctx(t)
+                        # st.script_run_context.add_script_run_ctx(t)
                         t.start()
                         cv2.rectangle(roi_color, (x1, y1), (x1 + w1, y1 + h1), (0, 0, 255), 2)  # Red rectangle for closed eyes
             else:
@@ -102,7 +102,7 @@ def drowsiness_detection(frame):
                         t.daemon = True
                         # st.report_thread.add_report_ctx(t)
                         # st.ReportThread.add_report_ctx(t)
-                        st.script_run_context.add_script_run_ctx(t)
+                        # st.script_run_context.add_script_run_ctx(t)
                         t.start()
                         cv2.rectangle(roi_color, (x2, y2), (x2 + w2, y2 + h2), (0, 0, 255), 2)  # Red rectangle for closed eyes
             else:
