@@ -12,25 +12,23 @@ from threading import Thread
 import time
 import cv2
 import av
-
 import base64
 
-def autoplay_audio(file_path: str):
-    with open(file_path, "rb") as f:
-        data = f.read()
-        b64 = base64.b64encode(data).decode()
-        md = f"""
-            <audio controls autoplay="true">
-            <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
-            </audio>
-            """
-        st.markdown(
-            md,
-            unsafe_allow_html=True,
-        )
-
 def start_alarm(sound):
-    autoplay_audio(sound)
+    pygame.mixer.init()
+    pygame.mixer.music.load(sound)
+    pygame.mixer.music.play()
+
+    # Base64 encode the audio file
+    with open(sound, "rb") as f:
+        audio_data = f.read()
+        audio_base64 = base64.b64encode(audio_data).decode()
+
+    # Embed the audio in HTML using the audio tag
+    audio_html = f'<audio controls autoplay="true"><source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3"></audio>'
+    
+    # Display the audio in Streamlit
+    st.markdown(audio_html, unsafe_allow_html=True)
 
 classes = ['Closed', 'Open']
 face_cascade = cv2.CascadeClassifier(r"haarcascade_frontalface_default.xml")
@@ -112,11 +110,11 @@ def main():
     webrtc_ctx = webrtc_streamer(key="example", video_frame_callback=drowsiness_detection,rtc_configuration={
         "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
     })
-    if webrtc_ctx.video_processor:
-        while True:
-            if st.button("Stop"):
-                webrtc_ctx.video_processor.stop()
-                break
+    # if webrtc_ctx.video_processor:
+    #     while True:
+    #         if st.button("Stop"):
+    #             webrtc_ctx.video_processor.stop()
+    #             break
 
 if __name__ == "__main__":
     main()
