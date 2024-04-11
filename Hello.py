@@ -13,16 +13,24 @@ import time
 import cv2
 import av
 
-# def start_alarm(sound):
-#     pygame.mixer.init()
-#     pygame.mixer.music.load(sound)
-#     pygame.mixer.music.play()
+import base64
 
-import vlc
+def autoplay_audio(file_path: str):
+    with open(file_path, "rb") as f:
+        data = f.read()
+        b64 = base64.b64encode(data).decode()
+        md = f"""
+            <audio controls autoplay="true">
+            <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
+            </audio>
+            """
+        st.markdown(
+            md,
+            unsafe_allow_html=True,
+        )
 
 def start_alarm(sound):
-    player = vlc.MediaPlayer(sound)
-    player.play()
+    autoplay_audio(sound)
 
 classes = ['Closed', 'Open']
 face_cascade = cv2.CascadeClassifier(r"haarcascade_frontalface_default.xml")
