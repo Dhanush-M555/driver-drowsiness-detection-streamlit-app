@@ -25,7 +25,7 @@ def start_alarm(sound):
         audio_base64 = base64.b64encode(audio_data).decode()
 
     # Embed the audio in HTML using the audio tag
-    audio_html = f'<audio controls autoplay="true"><source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3"></audio>'
+    audio_html = f'<audio controls autoplay="true"><source src="alarm/mp3;base64,{audio_base64}" type="audio/mp3"></audio>'
     
     # Display the audio in Streamlit
     st.markdown(audio_html, unsafe_allow_html=True)
