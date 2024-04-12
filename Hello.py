@@ -14,20 +14,30 @@ import cv2
 import av
 import base64
 
-def start_alarm(sound):
-    with open(sound, "rb") as f:
-        data = f.read()
-        b64 = base64.b64encode(data).decode()
-        md = f"""
-            <audio controls autoplay="true">
-            <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
+def start_alarm(s):
+    # with open(sound, "rb") as f:
+    #     data = f.read()
+    #     b64 = base64.b64encode(data).decode()
+    #     md = f"""
+    #         <audio controls autoplay="true">
+    #         <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
+    #         </audio>
+    #         """
+    #     st.markdown(
+    #         md,
+    #         unsafe_allow_html=True,
+    #     )
+    # st.write("# Auto-playing Audio!")
+    html_string = """
+            <audio controls autoplay>
+              <source src="https://www.orangefreesounds.com/wp-content/uploads/2022/04/Small-bell-ringing-short-sound-effect.mp3" type="audio/mp3">
             </audio>
             """
-        st.markdown(
-            md,
-            unsafe_allow_html=True,
-        )
-    st.write("# Auto-playing Audio!")
+    sound = st.empty()
+    sound.markdown(html_string, unsafe_allow_html=True)  # will display a st.audio with the sound you specified in the "src" of the html_string and autoplay it
+    time.sleep(1)  # wait for 2 seconds to finish the playing of the audio
+    sound.empty()  # optionally delete the element afterwards
+
 
 
 classes = ['Closed', 'Open']
